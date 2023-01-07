@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lua Beautifier</title>
+  </head>
+  <body>
+    <form>
+      <textarea id="code"></textarea>
+      <br>
+      <button type="button" onclick="beautify()">Beautify</button>
+    </form>
+    <script>
+      function beautify() {
+        var code = document.getElementById('code').value;
+        
+        var beautifiedCode = luaBeautifier(code);
+        
+        document.getElementById('code').value = beautifiedCode;
+      }
+      
+function luaBeautifier(code) {
+  var lines = code.split('\n');
+  
+  var indentLevel = 0;
+  
+  var beautifiedCode = '';
+  
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    
+    var inString = false;
+    var skip = false;
+    for (var j = 0; j < line.length; j++) {
+      if (line[j] == '\\') {
+        skip = !skip;
+      } else if (line[j] == '"' && !skip) {
+        inString = !inString;
+      }
+    }
+    
+    var openBracketCount = 0;
+    skip = false;
+    for (var j = 0; j < line.length; j++) {
+      if (line[j] == '\\') {
+        skip = !skip;
+      } else if (line[j] == '{' && !skip && !inString) {
+        openBracketCount++;
+      }
+    }
+    var closedBracketCount = 0;
+    skip = false;
+    for (var j = 0; j < line.length; j++) {
+      if (line[j] == '\\') {
+        skip = !skip;
+      } else if (line[j] == '}' && !skip && !inString) {
+        closedBracketCount++;
+      }
+    }
+    indentLevel += openBracketCount;
+    indentLevel -= closedBracketCount;
+    
+    line = ' '.repeat(indentLevel * 2) + line;
+    
+    beautifiedCode += line + '\n';
+  }
+  
+  return beautifiedCode;
+}
+    </script>
+  </body>
+</html>
